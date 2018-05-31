@@ -1,13 +1,12 @@
 package com.konovalov.bank;
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
+
+public class App {
+   private  static ServiceUtill utill = new ServiceUtill();
+    public static void main(String[] args) {
+
+        utill.refill();
+        utill.close();
+
     }
 }
