@@ -27,7 +27,7 @@ public class ServiceUtill {
         System.out.println(" REFILL:");
         System.out.println(" Input name User");
         String nameUser = sc.nextLine();
-        Query query = em.createNamedQuery("User.find", User.class);
+        Query query = em.createQuery("SELECT u FROM User u WHERE u.name=:n", User.class);
         query.setParameter("n", nameUser);
         User userTemp = (User) query.getSingleResult();
         if (userTemp == null) {
@@ -40,9 +40,7 @@ public class ServiceUtill {
 
     private void updateAcct(User user) {
         Acct acctTemp = createAcct(user);
-        Query query = em.createNamedQuery("Acct.find", Acct.class);
-        query.setParameter("uid", user.getId());
-        Acct acct = (Acct) query.getSingleResult();
+        Acct acct = user.getAcct();
 
         acct.setUa(acct.getUa() + acctTemp.getUa());
         acct.setEur(acct.getEur() + acctTemp.getEur());
