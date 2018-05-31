@@ -4,10 +4,7 @@ package com.konovalov.bank;
 import com.konovalov.bank.entity.Acct;
 import com.konovalov.bank.entity.User;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
+import javax.persistence.*;
 import java.util.Scanner;
 
 public class ServiceUtill {
@@ -27,15 +24,14 @@ public class ServiceUtill {
         System.out.println(" REFILL:");
         System.out.println(" Input name User");
         String nameUser = sc.nextLine();
-        Query query = em.createQuery("SELECT u FROM User u WHERE u.name=:n", User.class);
-        query.setParameter("n", nameUser);
-        User userTemp = (User) query.getSingleResult();
-        if (userTemp == null) {
-            addUser(nameUser);
-        } else {
+        try {
+            Query query = em.createQuery("SELECT u FROM User u WHERE u.name=:n", User.class);
+            query.setParameter("n", nameUser);
+            User userTemp = (User) query.getSingleResult();
             updateAcct(userTemp);
+        } catch (NoResultException ex) {
+            addUser(nameUser);
         }
-
     }
 
     private void updateAcct(User user) {
@@ -71,9 +67,9 @@ public class ServiceUtill {
             em.getTransaction().begin();
             User user = new User(nameUser);
             Acct acct = createAcct(user);
-
             em.merge(acct);
             em.getTransaction().commit();
+
             System.out.println("REFILL OK");
         } catch (Exception ex) {
             em.getTransaction().rollback();
