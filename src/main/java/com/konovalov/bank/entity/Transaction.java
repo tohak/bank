@@ -2,25 +2,22 @@ package com.konovalov.bank.entity;
 
 
 import javax.persistence.*;
-import java.util.Date;
+import java.sql.Date;
+
 
 @Entity
 @Table
 public class Transaction {
     @Id
     @GeneratedValue
-    private  Long id;
+    private Long id;
 
-    @Column(nullable = false)
     private String from;
 
-    @Column(nullable = false)
     private String to;
 
-    @Column(nullable = false)
     private double count;
 
-    @Column(nullable = false)
     private Date date;
 
     public Transaction() {

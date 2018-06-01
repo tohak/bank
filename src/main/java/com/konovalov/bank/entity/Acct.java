@@ -5,7 +5,6 @@ import javax.persistence.*;
 
 @Entity
 @Table
-//@NamedQuery(name="Acct.find", query = "SELECT a FROM Acct  a WHERE User.id=:uid")
 public class Acct {
     @Id
     @GeneratedValue

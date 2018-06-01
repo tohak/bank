@@ -6,6 +6,9 @@ public class App {
     public static void main(String[] args) {
 
         utill.refill();
+        utill.refill();
+        utill.testTransaction();
+      //  utill.transactionFrom();
         utill.close();
         System.out.println("and");
 
