@@ -2,7 +2,7 @@ package com.konovalov.bank.entity;
 
 
 import javax.persistence.*;
-
+import java.util.Date;
 
 
 @Entity
@@ -11,20 +11,31 @@ public class Transaction {
     @Id
     @GeneratedValue
     private long id;
-    @Column(nullable = true)
+    @Column(name = "from_user")
     private String from;
-    @Column(nullable = true)
+    @Column(name = "to_user")
     private String to;
-    @Column(nullable = true)
-    private int count;
+    private double count;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date date;
 
     public Transaction() {
     }
 
-    public Transaction(String from, String to, int count) {
+    public Transaction(String from, String to, double count, Date date) {
         this.from = from;
         this.to = to;
         this.count = count;
+        this.date=date;
+
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public long getId() {
@@ -66,6 +77,7 @@ public class Transaction {
                 ", from='" + from + '\'' +
                 ", to='" + to + '\'' +
                 ", count=" + count +
+                ", date=" + date +
                 '}';
     }
 }

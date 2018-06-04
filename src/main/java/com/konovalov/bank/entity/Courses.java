@@ -10,8 +10,11 @@ public class Courses {
     @Id
     @GeneratedValue
     private int id;
+    @Column(name = "currency_user")
     private String currency;
+    @Column(name = "by_user")
     private double by;
+    @Column(name = "shell_user")
     private  double shell;
 
     public Courses() {
