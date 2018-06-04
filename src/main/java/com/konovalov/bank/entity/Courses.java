@@ -10,13 +10,8 @@ public class Courses {
     @Id
     @GeneratedValue
     private int id;
-
-    @Column(nullable = false)
     private String currency;
-
-    @Column(nullable = false)
     private double by;
-    @Column(nullable = false)
     private  double shell;
 
     public Courses() {

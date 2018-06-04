@@ -14,7 +14,7 @@ public class ServiceUtill {
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory("JPA");
     private EntityManager em = emf.createEntityManager();
     private Scanner sc = new Scanner(System.in);
-    private Scanner scTho= new Scanner(System.in);
+    private Scanner scTho = new Scanner(System.in);
 
     public ServiceUtill() {
     }
@@ -91,49 +91,51 @@ public class ServiceUtill {
         } catch (Exception ex) {
             em.getTransaction().rollback();
             System.out.println("REFILL NO!, Error");
+            System.out.println(ex.getMessage());
         }
     }
-public void testTransaction(){
+
+    public void testTransaction() {
+        String from = "test";
+        String to = "test1";
+        int count = 10;
+        Transaction transaction = new Transaction(from, to, count);
+        em.getTransaction().begin();
         try {
-            em.getTransaction().begin();
-           // SimpleDateFormat sdf=new SimpleDateFormat("dd-MM-yyyy:HH-mm");
-            Date date=new Date();
-            java.sql.Date date1 = new java.sql.Date(date.getTime());
-            //  sdf.format(date);
-            Transaction transaction = new Transaction("test", "test1", 10,date1);
             em.persist(transaction);
             em.getTransaction().commit();
-        }catch (Exception ex){
-            em.getTransaction().rollback();
-            System.out.println("Error transaction");
-        }
-
-}
-    public void transactionFrom() {
-        try {
-            em.getTransaction().begin();
-            Transaction transaction = createTransaction();
-            User userFrom = checkUser(transaction.getFrom());
-            User userTo = checkUser(transaction.getTo());
-            if (userFrom != null || userTo != null) {
-                if (userFrom.getAcct().getUa() - userTo.getAcct().getUa() >= 0) {
-                    userFrom.getAcct().setUa(userFrom.getAcct().getUa() - userTo.getAcct().getUa());
-                    userTo.getAcct().setUa(userTo.getAcct().getUa() + transaction.getCount());
-                    em.merge(userFrom);
-                    em.merge(userTo);
-                    em.persist(transaction);
-                    System.out.println("Transacton OK");
-                } else {
-                    System.out.println("Transaction NO! Error, no count many");
-                }
-            }
-            em.getTransaction().commit();
-
         } catch (Exception ex) {
             em.getTransaction().rollback();
-            System.out.println("Transaction No!, Error");
+            System.out.println("Error transaction");
+            System.out.println(ex.getMessage());
         }
+
     }
+//    public void transactionFrom() {
+//        try {
+//            em.getTransaction().begin();
+//            Transaction transaction = createTransaction();
+//            User userFrom = checkUser(transaction.getFrom());
+//            User userTo = checkUser(transaction.getTo());
+//            if (userFrom != null || userTo != null) {
+//                if (userFrom.getAcct().getUa() - userTo.getAcct().getUa() >= 0) {
+//                    userFrom.getAcct().setUa(userFrom.getAcct().getUa() - userTo.getAcct().getUa());
+//                    userTo.getAcct().setUa(userTo.getAcct().getUa() + transaction.getCount());
+//                    em.merge(userFrom);
+//                    em.merge(userTo);
+//                    em.persist(transaction);
+//                    System.out.println("Transacton OK");
+//                } else {
+//                    System.out.println("Transaction NO! Error, no count many");
+//                }
+//            }
+//            em.getTransaction().commit();
+//
+//        } catch (Exception ex) {
+//            em.getTransaction().rollback();
+//            System.out.println("Transaction No!, Error");
+//        }
+//    }
 
     private User checkUser(String userName) {
         User user;
@@ -149,19 +151,19 @@ public void testTransaction(){
         return user;
     }
 
-    private Transaction createTransaction() {
-        System.out.println("Input from name ");
-        String from = scTho.nextLine();
-        System.out.println("Input to name");
-        String to = scTho.nextLine();
-        System.out.println("Input count ua");
-        Double count = sc.nextDouble();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy:HH-mm");
-        java.sql.Date date = (java.sql.Date) new Date(new Date().getTime());
-        sdf.format(date);
-        Transaction transaction = new Transaction(from, to, count, date);
-        return transaction;
-    }
+//    private Transaction createTransaction() {
+//        System.out.println("Input from name ");
+//        String from = scTho.nextLine();
+//        System.out.println("Input to name");
+//        String to = scTho.nextLine();
+//        System.out.println("Input count ua");
+//        Double count = sc.nextDouble();
+//        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy:HH-mm");
+//        java.sql.Date date = (java.sql.Date) new Date(new Date().getTime());
+//        sdf.format(date);
+//        Transaction transaction = new Transaction(from, to, count, date);
+//        return transaction;
+//    }
 
 
 }
