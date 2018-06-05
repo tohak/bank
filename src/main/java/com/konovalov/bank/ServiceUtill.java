@@ -9,6 +9,7 @@ import com.konovalov.bank.entity.User;
 import javax.persistence.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 
 public class ServiceUtill {
@@ -100,8 +101,8 @@ public class ServiceUtill {
         String from = "test";
         String to = "test1";
         double count = 10;
-        Date date= new Date();
-        Transaction transaction = new Transaction(from, to, count,date);
+        Date date = new Date();
+        Transaction transaction = new Transaction(from, to, count, date);
         em.getTransaction().begin();
         try {
             em.persist(transaction);
@@ -113,6 +114,7 @@ public class ServiceUtill {
         }
 
     }
+
     public void transactionFrom() {
         try {
             em.getTransaction().begin();
@@ -162,65 +164,144 @@ public class ServiceUtill {
         String to = scTho.nextLine();
         System.out.println("Input count ua");
         Double count = sc.nextDouble();
-        Date date= new Date();
+        Date date = new Date();
         Transaction transaction = new Transaction(from, to, count, date);
         return transaction;
     }
-    public  void addCource(String nameCurrency, double by, double shell){
-        Courses courses=new Courses(nameCurrency,by,shell);
-        try{
+
+    public void addCource(String nameCurrency, double by, double shell) {
+        Courses courses = new Courses(nameCurrency, by, shell);
+        try {
             em.getTransaction().begin();
             em.persist(courses);
             em.getTransaction().commit();
             System.out.println("AddCoirce YES");
-        }catch (Exception e){
+        } catch (Exception e) {
             em.getTransaction().rollback();
             System.out.println("Error, is not addCource");
         }
     }
-    public void courceFromTo(){
-        User user=getUser();
-        if (checkFromTo()){
-            Courses to=getCource();
-        }else{
-            Courses from=getCource();
+
+    public void courceFromTo() {
+        System.out.println("COURCE FROM TO");
+        User user = getUser();
+        em.getTransaction().begin();
+        try {
+            if (checkFromTo()) {
+                Courses to = getCource();
+                double valueCource = courceValue();
+                if (user.getAcct().getUa() - (valueCource * to.getBy()) >= 0) {
+                    user = courceBy(user, valueCource, to);
+                    em.merge(user);
+                } else {
+                    System.out.println("Error is not values money");
+                }
+            } else {
+                Courses from = getCource();
+                double valueCource = courceValue();
+                user = courceShell(user, from, valueCource);
+                em.merge(user);
+            }
+            em.getTransaction().commit();
+            System.out.println("cource from to YES");
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            System.out.println("cource from to Error!!!");
         }
 
-
-       
-
     }
-    private boolean checkFromTo(){
-        int check= 0;
-        System.out.println("Input '1' if buy currency, '2' if shell ");
-        check=sc.nextInt();
-        if (check < 2) {
-            return true;
-        }else return false;
-    }
-    private User getUser(){
-        System.out.println("Input name user");
-        String nameUser= sc.nextLine();
-        User user=checkUser(nameUser);
+
+    private User courceShell(User user, Courses from, double valueCource) {
+        if (from.getCurrency().equals("usd") && (user.getAcct().getUsd() - valueCource >= 0)) {
+            user.getAcct().setUsd(user.getAcct().getUsd() - valueCource);
+            user.getAcct().setUa(user.getAcct().getUa() + from.getShell() * valueCource);
+            System.out.println("cource usd Shel OK");
+        } else if (from.getCurrency().equals("eur") && (user.getAcct().getEur() - valueCource >= 0)) {
+            user.getAcct().setEur(user.getAcct().getEur() - valueCource);
+            user.getAcct().setUa(user.getAcct().getUa() + from.getShell() * valueCource);
+            System.out.println("cource eur Shel OK");
+        } else {
+            System.out.println("cource shell Error");
+        }
+
         return user;
     }
-    private Courses getCource(){
-        System.out.println("Input  cource ");
-        String from=scTho.nextLine();
+
+    private User courceBy(User user, double valueCource, Courses to) {
+        user.getAcct().setUa(user.getAcct().getUa() - valueCource * to.getBy());
+        if (to.getCurrency().equals("usd")) {
+            user.getAcct().setUsd(user.getAcct().getUsd() + valueCource);
+        } else if (to.getCurrency().equals("eur")) {
+            user.getAcct().setEur(user.getAcct().getEur() + valueCource);
+        } else {
+            System.out.println("Erorr courceBy");
+        }
+
+        return user;
+    }
+
+    private double courceValue() {
+        System.out.println("Input how much to exchange");
+        double value = sc.nextDouble();
+        return value;
+    }
+
+    private boolean checkFromTo() {
+        int check = 0;
+        System.out.println("Input '1' if buy currency, '2' if shell ");
+        check = sc.nextInt();
+        if (check < 2) {
+            return true;
+        } else return false;
+    }
+
+    private User getUser() {
+        System.out.println("Input name user");
+        String nameUser = scTho.nextLine();
+        User user = checkUser(nameUser);
+        return user;
+    }
+
+    private Courses getCource() {
+        System.out.println("Input  cource name money (usd or eur) ");
+        String from = scTho.nextLine();
         Courses courses;
-        try{
-            Query query= em.createQuery("SELECT c FROM Courses c WHERE c.currency=:n", Courses.class);
-            query.setParameter("n",from);
-             courses=(Courses) query.getSingleResult();
+        try {
+            Query query = em.createQuery("SELECT c FROM Courses c WHERE c.currency=:n", Courses.class);
+            query.setParameter("n", from);
+            courses = (Courses) query.getSingleResult();
 
         } catch (NoResultException ex) {
             System.out.println("Error, is not cources");
-             courses= null;
+            courses = null;
         }
 
         return courses;
     }
 
+    public long maxMoneyUa() {
+        User user = getUser();
+        long maxMoney = 0;
+        maxMoney += user.getAcct().getUa();
+        List<Courses> coursesList = getCourceAll();
+
+        for (Courses courses :
+                coursesList) {
+            if (courses.getCurrency().equals("usd")) {
+                maxMoney += user.getAcct().getUsd() * courses.getShell();
+            }
+            if (courses.getCurrency().equals("eur")) {
+                maxMoney += user.getAcct().getEur() * courses.getShell();
+            }
+        }
+        return maxMoney;
+    }
+
+    private List<Courses> getCourceAll() {
+        Query query = em.createQuery("SELECT c FROM Courses c", Courses.class);
+        List<Courses> coursesList = (List<Courses>) query.getResultList();
+        return coursesList;
+    }
 
 
 }
